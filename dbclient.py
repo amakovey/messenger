@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 
 class DbStore():
@@ -8,14 +9,15 @@ class DbStore():
     def create_db(self):
         con = sqlite3.connect(str(self.name) + '.db')
         cur = con.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS history_message(client_id INTEGER,'
-                    'time TEXT,'
+        cur.execute('CREATE TABLE IF NOT EXISTS history_message(time TEXT,'
+                    'sender TEXT,'
+                    'receiver TEXT,'
                     'message TEXT)')
         cur.execute('CREATE TABLE IF NOT EXISTS contacts(client_id TEXT PRIMARY KEY)')
         cur.close()
         con.close()
 
-    def add_client(self, login):
+    def add_client(self, login):  # Добавление пользователя в БД клиента
         con = sqlite3.connect(self.name + '.db')
         cur = con.cursor()
         data = [login]
@@ -28,7 +30,7 @@ class DbStore():
         cur.close()
         con.close()
 
-    def del_client(self, login):
+    def del_client(self, login):  # Удаление пользователя из БД клиента
 
         con = sqlite3.connect(self.name + '.db')
         cur = con.cursor()
@@ -44,7 +46,7 @@ class DbStore():
         cur.close()
         con.close()
 
-    def show_client(self):
+    def show_client(self):  # Выборка пользователя из списка контактов клиента
 
         con = sqlite3.connect(self.name + '.db')
         cur = con.cursor()
@@ -53,5 +55,15 @@ class DbStore():
         result = cur.fetchall()
         nicklist = [i[0] for i in result]
         return nicklist
+        cur.close()
+        con.close()
+
+    def history(self, who, msg):  # Запись сообщений в БД клиента
+        t = time.strftime("%Y-%m-%d-%H.%M.%S", time.localtime())
+        con = sqlite3.connect(self.name + '.db')
+        cur = con.cursor()
+        data = [t, self.name, who, msg]
+        cur.execute('INSERT INTO history_message VALUES (?,?,?,?)', data)
+        con.commit()
         cur.close()
         con.close()

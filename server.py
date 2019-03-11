@@ -19,7 +19,6 @@ while True:
         pass
     else:
         print("Получен запрос на соединение с %s" % str(addr))
-
         clients.append(conn)
     finally:
         wait = 0
@@ -29,10 +28,7 @@ while True:
             r, w, e = select.select(clients, clients, [], wait)
         except:
             pass
-
     if r:
         data = JIM.Server.receive(r)
-
     if w and data:
-
         data, clients = JIM.Server.send(w, data, clients)

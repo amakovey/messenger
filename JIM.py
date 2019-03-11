@@ -143,10 +143,10 @@ class Client:
         return server_client_list
 
     @log
-    def msg(self, who, me, data):  # Запрос на отправку простого сообщения
+    def msg(self, who, data):  # Запрос на отправку простого сообщения
         t = time.strftime("%Y-%m-%d-%H.%M.%S", time.localtime())
         message = json.dumps(
-            {"action": "msg", "time": t, "to": "all", "from": me, "encoding": "ascii", "message": data})
+            {"action": "msg", "time": t, "to": "all", "from": self.name, "encoding": "ascii", "message": data})
         resp = message.encode('ascii')
         self.s.send(resp)
 
@@ -170,8 +170,8 @@ class Client:
         self.s.send(resp)
 
     @log
-    def sendto(self, who, me, data):  # запрос отправки персонального сообщения
+    def sendto(self, who, data):  # запрос отправки персонального сообщения
         t = time.strftime("%Y-%m-%d-%H.%M.%S", time.localtime())
-        message = json.dumps({"action": "msg", "time": t, "to": who, "from": me, "encoding": "ascii", "message": data})
+        message = json.dumps({"action": "msg", "time": t, "to": who, "from": self.name, "encoding": "ascii", "message": data})
         resp = message.encode('ascii')
         self.s.send(resp)

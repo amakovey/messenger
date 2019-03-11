@@ -13,13 +13,14 @@ class DbStore():
         cur.execute('CREATE TABLE IF NOT EXISTS contacts(owner_id TEXT,'
                     'client_id TEXT)')
 
-        cur.execute('CREATE TABLE IF NOT EXISTS history_client(client_id TEXT,'
-                    'time TEXT,'
+        cur.execute('CREATE TABLE IF NOT EXISTS history_client(time TEXT,'
+                    'sender TEXT,'
+                    'receiver TEXT,'
                     'message TEXT)')
         cur.close()
         con.close()
 
-    def login(ip, time):
+    def login(ip, time):  # Запись истории входа в БД сервера
         data = [str(time), str(ip)]
         con = sqlite3.connect('base.db')
         cur = con.cursor()
@@ -28,7 +29,7 @@ class DbStore():
         cur.close()
         con.close()
 
-    def client(login, ip):  # Запись в БД логин и IP клиента
+    def client(login, ip):  # Запись/обновление в БД логин и IP клиента
         data = [login, str(ip)]
         con = sqlite3.connect('base.db')
         cur = con.cursor()
@@ -45,7 +46,7 @@ class DbStore():
         con.close()
 
     @staticmethod
-    def get_clients():
+    def get_clients():  # Выборка пользователей из БД сервера
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         clients = []
@@ -62,19 +63,19 @@ class DbStore():
         con.close()
         return clients
 
-    def history(data, time):
-        data = [data["from"], time, data["message"]]
+    def history(data, time):  # Запись сообщений пользователей в БД сервера
+        data = [time, data["from"], data["to"], str(data["message"])]
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         try:
-            cur.execute('INSERT INTO history_client VALUES (?,?,?)', data)
+            cur.execute('INSERT INTO history_client VALUES (?,?,?,?)', data)
             con.commit()
         except:
             pass
         cur.close()
         con.close()
 
-    def get_login(ip):  # поиск клиента по IP
+    def get_login(ip):  # поиск имени клиента по IP
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         cur.execute('SELECT client_id FROM client WHERE info = "' + str(ip) + '"')
@@ -83,7 +84,7 @@ class DbStore():
         con.close()
         return result[0]
 
-    def get_ip(login):  # поиск клиента по IP
+    def get_ip(login):  # поиск IP клиента по имени
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         cur.execute('SELECT info FROM client WHERE client_id = "' + str(login) + '"')
@@ -92,7 +93,7 @@ class DbStore():
         con.close()
         return result[0]
 
-    def add_contact(owner, login):  # поиск клиента по IP
+    def add_contact(owner, login):  # Добавление пользователя с список контактов
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         cur.execute('SELECT client_id FROM contacts WHERE client_id = "' + login + '" and owner_id ="' + owner + '"')
@@ -106,7 +107,7 @@ class DbStore():
         cur.close()
         con.close()
 
-    def del_contact(owner, login):  # поиск клиента по IP
+    def del_contact(owner, login):  # Удаление пользователя из списока контактов
         con = sqlite3.connect('base.db')
         cur = con.cursor()
         cur.execute('SELECT client_id FROM contacts WHERE client_id = "' + login + '" and owner_id ="' + owner + '"')
